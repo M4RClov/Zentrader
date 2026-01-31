@@ -1282,3 +1282,62 @@ def mostrar_dashboard(score, reasons, meal, account_capital, max_risk_pct):
 
 if __name__ == "__main__":
     main()
+# ==========================================
+# 💬 MÓDULO DE COMUNIDAD (CHAT GLOBAL)
+# ==========================================
+import streamlit as st
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+from datetime import datetime
+import pandas as pd
+
+# Función de Conexión Blindada (Detecta si es Nube o PC)
+def conectar_db_comunidad():
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    try:
+        # Intento 1: Nube (Secrets)
+        creds_dict = dict(st.secrets["gcp_service_account"])
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    except:
+        # Intento 2: Local (PC)
+        creds = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
+    
+    client = gspread.authorize(creds)
+    # ⚠️ IMPORTANTE: Asegúrate de que tu Google Sheet se llame así
+    return client.open("Bitacora_ZenTrader").worksheet("Comunidad")
+
+st.markdown("---")
+st.header("💬 Sala de Trading: Opiniones en Vivo")
+
+# 1. FORMULARIO DE ENVÍO
+with st.expander("📢 Dejar una opinión o análisis"):
+    with st.form("chat_form"):
+        col1, col2 = st.columns(2)
+        usuario = col1.text_input("Nick:", "Trader Anonimo")
+        activo_chat = col2.text_input("Activo:", "BTC-USD")
+        mensaje = st.text_area("Tu visión del mercado:")
+        enviado = st.form_submit_button("🚀 Publicar")
+        
+        if enviado and mensaje:
+            try:
+                sheet = conectar_db_comunidad()
+                fecha = datetime.now().strftime("%Y-%m-%d %H:%M")
+                sheet.append_row([fecha, usuario, activo_chat, mensaje])
+                st.success("¡Mensaje publicado!")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Error: {e}")
+
+# 2. MURO DE MENSAJES
+try:
+    sheet = conectar_db_comunidad()
+    registros = sheet.get_all_records()
+    if registros:
+        df_chat = pd.DataFrame(registros)
+        # Mostrar últimos 5 mensajes (invertido)
+        for i, row in df_chat.iloc[::-1].head(10).iterrows():
+            st.info(f"📅 {row['FECHA']} | 👤 {row['USUARIO']} sobre {row['ACTIVO']}\n\n**{row['MENSAJE']}**")
+    else:
+        st.write("Sé el primero en escribir algo.")
+except:
+    st.warning("Conectando con la base de datos comunitaria...")
