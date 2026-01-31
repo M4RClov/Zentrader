@@ -8,3 +8,5 @@ plotly
 pytz
 matplotlib
 gTTS
+gspread
+oauth2client
