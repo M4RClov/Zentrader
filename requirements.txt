@@ -1,0 +1,10 @@
+streamlit
+pandas
+yfinance
+feedparser
+beautifulsoup4
+vaderSentiment
+plotly
+pytz
+matplotlib
+gTTS
