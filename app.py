@@ -1,4 +1,4 @@
- import streamlit as st
+import streamlit as st
 import pandas as pd
 import yfinance as yf
 import plotly.graph_objects as go
@@ -16,7 +16,7 @@ from datetime import datetime
 st.set_page_config(page_title="ZenTrader Sentinel", layout="wide", page_icon="🧘")
 
 # --- 🔑 TU API KEY AQUÍ ---
-API_KEY = "PEGAR_TU_CLAVE_AQUI"  
+API_KEY = "AIzaSyDDARUGlDLNqKy_brhfc-zWv4u1rM9mKls"  
 
 # Configurar IA (Manejo de errores si no hay clave)
 ai_active = False
@@ -314,3 +314,5 @@ with tab3:
             """, unsafe_allow_html=True)
     except:
         st.write("No se pudieron cargar las noticias RSS.")
+        st.write("No se pudieron cargar las noticias RSS.")
+
